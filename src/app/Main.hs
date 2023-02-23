@@ -78,4 +78,4 @@ update time snakeGame = if (gameOver snakeGame)
                 curDirection = direction snakeGame
 
 main :: IO ()
-main = play window background 20 (initialState True) render handleKeys update
+main = play window background 10 (initialState True) render handleKeys update
