@@ -2,6 +2,7 @@ module Snake where
 import Data.Map as Map
 import System.Random
 
+-- Inititalize global variables
 data CurDir = UP | DOWN | LEFT | RIGHT deriving (Show, Eq)
 
 gameBorderHeight = 24
@@ -14,6 +15,7 @@ width, height :: Int
 width = gameBorderWidth * 20 + (round blockSize)
 height = gameBorderHeight * 20 + (round blockSize)
 
+-- Initialize data types/structures
 type Food = (Int, Int)
 type Snake = [Food]
 
@@ -26,6 +28,7 @@ data SnakeGame = Game {
     score :: Int
 } deriving Show
 
+-- Initial state of the program upon starting
 initialState :: Bool -> SnakeGame
 initialState gameOverState = Game {
     getSnake = [(startX, startY), (startX, startY-1), (startX, startY-2)],
@@ -38,13 +41,13 @@ initialState gameOverState = Game {
     startX = 15
     startY = 15
 
+-- Update the state of the snake
+-- Increment the head and delete the tail depending on if it eats food
 move :: SnakeGame -> Snake
-move snakeGame = 
+move (Game snake food gameOver curDir randSeed score) = 
     if isFoodEaten then newHead : snake else newHead : init snake
     where
-    (isFoodEaten, _) = (foodIsEaten snakeGame)
-    curDir = direction snakeGame
-    snake = (getSnake snakeGame)
+    (isFoodEaten, _) = (foodIsEaten (Game snake food gameOver curDir randSeed score))
     newHead = 
         -- (0, -1) is up
         if curDir == UP then (xHead, yHead - 1)
@@ -56,24 +59,34 @@ move snakeGame =
         else if curDir == RIGHT then (xHead + 1, yHead)
         -- this last case shouldn't happen
         else head snake
-
     (xHead, yHead) = head snake
 
+-- Change the state of direction using the provided new direction 
 changeDirection :: SnakeGame -> CurDir -> SnakeGame
 changeDirection (Game s f g direction r sc) newDir = (Game s f g newDir r sc)
 
+-- Checks if snake eats food based on coordinates of the head and food
+-- Returns the Bool and score
 foodIsEaten :: SnakeGame -> (Bool, Int)
-foodIsEaten snakeGame = if (head (getSnake snakeGame)) == (getFood snakeGame)
-    then (True, score snakeGame + 1)
-    else (False, score snakeGame)
+foodIsEaten (Game snake food gameOver curDir randSeed score) = if (head snake) == food
+    then (True, score + 1)
+    else (False, score)
 
+-- Checks if game is over based on if the head crosses the boundaries or intersects with body
 checkGameOver :: SnakeGame -> Bool
-checkGameOver snakeGame = ((head $ getSnake snakeGame) `elem` (tail $ getSnake snakeGame)) ||
-    (fst (head $ getSnake snakeGame) <= 0|| fst (head $ getSnake snakeGame) >= gameBorderWidth) ||
-    (snd (head $ getSnake snakeGame) <= 0 || snd (head $ getSnake snakeGame) >= gameBorderHeight)
-
-generateFood :: SnakeGame -> (Food, StdGen)
-generateFood snakeGame = ((foodX, foodY), stdGen3)
+checkGameOver (Game snake food gameOver curDir randSeed score) =
+    ((head snake) `elem` (tail snake)) ||
+    (headX <= 0|| headX >= gameBorderWidth) ||
+    (headY <= 0 || headY >= gameBorderHeight)
     where
-        (foodX, stdGen2) = ((randomR (1, gameBorderWidth-1) (randSeed snakeGame)))
+        (headX, headY) = head snake
+
+-- Generates new food and checks that food spawns in valid position
+-- Returns the new food and a new random seed
+generateFood :: SnakeGame -> (Food, StdGen)
+generateFood (Game snake food gameOver direction randSeed score) = if (foodX, foodY) `elem` snake
+    then generateFood (Game snake food gameOver direction stdGen3 score)
+    else ((foodX, foodY), stdGen3)
+    where
+        (foodX, stdGen2) = ((randomR (1, gameBorderWidth-1) randSeed))
         (foodY, stdGen3) = ((randomR (1, gameBorderHeight-1) stdGen2))
