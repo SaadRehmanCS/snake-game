@@ -1,1 +1,6 @@
-*Attempt* at an implementation of snake game
+To run the program,
+
+```
+cabal build
+cabal run
+```
