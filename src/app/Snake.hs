@@ -1,9 +1,6 @@
-{-# LANGUAGE DeriveGeneric #-}
 module Snake where
 import Data.Map as Map
 import System.Random
-import Data.Aeson
-import GHC.Generics
 
 -- Inititalize global variables
 data CurDir = UP | DOWN | LEFT | RIGHT deriving (Show, Eq)

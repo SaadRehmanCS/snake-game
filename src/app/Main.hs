@@ -2,9 +2,6 @@ module Main(main) where
 import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Snake
-import qualified Data.ByteString.Lazy as B
-import Data.Aeson
-import GHC.TopHandler
 
 -- Larger value means faster gameplay
 clockTick :: Int
