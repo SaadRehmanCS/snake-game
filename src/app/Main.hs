@@ -78,8 +78,10 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) snakeGame = (changeDirection s
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) snakeGame = (changeDirection snakeGame DOWN)
 handleKeys (EventKey (SpecialKey KeySpace) Down _ _) snakeGame =
         if (gameOver snakeGame)
-                then initialState False
+                then initialState False newHighScore
                 else snakeGame
+                where
+                        newHighScore = highScore snakeGame
 
 handleKeys _ snakeGame = snakeGame
 
@@ -105,16 +107,6 @@ update time snakeGame = if (gameOver snakeGame)
                         then newScore
                         else highScore snakeGame
 
-instance ToJSON HighScore where
-    toEncoding = genericToEncoding defaultOptions
-
--- Write the high score to file and return the current game state
-handleGameEnd :: SnakeGame -> IO SnakeGame
-handleGameEnd snakeGame = do
-        B.writeFile "./high_score.json" $ encode(HighScore { highScoreVal = (highScore snakeGame) })
-        return snakeGame
-
-
 -- Entry point of program
 main :: IO ()
-main = play window background clockTick (initialState True) render handleKeys update
+main = play window background clockTick (initialState True 0) render handleKeys update

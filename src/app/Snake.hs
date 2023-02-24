@@ -32,24 +32,16 @@ data SnakeGame = Game {
     highScore :: Int
 } deriving Show
 
-data HighScore = HighScore {
-    highScoreVal :: Int
-} deriving (Generic, Show)
-
--- read the file and get current high score
-getHighScoreFromFile :: Int
-getHighScoreFromFile = 0
-
 -- Initial state of the program upon starting
-initialState :: Bool -> SnakeGame
-initialState gameOverState = Game {
+initialState :: Bool -> Int -> SnakeGame
+initialState gameOverState newHighScore = Game {
     getSnake = [(startX, startY), (startX, startY-1), (startX, startY-2)],
     getFood = (10,3),
     gameOver = gameOverState,
     direction = DOWN,
     randSeed = mkStdGen 100,
     score = 0,
-    highScore = getHighScoreFromFile
+    highScore = newHighScore
 } where
     startX = 15
     startY = 15
