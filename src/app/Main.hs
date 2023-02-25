@@ -3,6 +3,7 @@ import Graphics.Gloss
 import Graphics.Gloss.Interface.Pure.Game
 import Snake
 
+-- Larger value means faster gameplay
 clockTick :: Int
 clockTick = 10
 
@@ -46,15 +47,19 @@ render game = pictures $
                                                         rectangleSolid w h
                         toFloat (x, y) = (fromIntegral x, fromIntegral y)
                         gameOverPicture =   if (gameOver game) 
-                                        then [  color blue $ 
+                                        then [  color red $ 
+                                                translate (-300) (150) $ 
+                                                scale 0.3 0.3 $ 
+                                                text ("High Score: "  ++ show (highScore game))
+                                        ,color blue $ 
                                                 translate (-200) (0) $ 
                                                 scale 0.5 0.5 $ 
                                                 text "GAME OVER"
-                                        ,  color blue $ 
+                                        ,color blue $ 
                                                 translate (-175) (-50) $ 
                                                 scale 0.2 0.2 $ 
                                                 text "Press SPACE to play again."
-                                        , color red $ 
+                                        ,color red $ 
                                                 translate (-90) (-100) $ 
                                                 scale 0.3 0.3 $ 
                                                 text ("Score: "  ++ show (score game))]
@@ -70,8 +75,10 @@ handleKeys (EventKey (SpecialKey KeyUp) Down _ _) snakeGame = (changeDirection s
 handleKeys (EventKey (SpecialKey KeyDown) Down _ _) snakeGame = (changeDirection snakeGame DOWN)
 handleKeys (EventKey (SpecialKey KeySpace) Down _ _) snakeGame =
         if (gameOver snakeGame)
-                then initialState False
+                then initialState False newHighScore
                 else snakeGame
+                where
+                        newHighScore = highScore snakeGame
 
 handleKeys _ snakeGame = snakeGame
 
@@ -80,7 +87,7 @@ handleKeys _ snakeGame = snakeGame
 update :: Float -> SnakeGame -> SnakeGame
 update time snakeGame = if (gameOver snakeGame)
         then (snakeGame)
-        else (Game newSnake newFood newGameOver curDirection newSeed newScore)
+        else (Game newSnake newFood newGameOver curDirection newSeed newScore newHighScore)
         where
                 newGameOver = checkGameOver snakeGame
                 curSnake = getSnake snakeGame
@@ -93,7 +100,10 @@ update time snakeGame = if (gameOver snakeGame)
                         then genFood
                         else curFood
                 curDirection = direction snakeGame
+                newHighScore = if (newScore > highScore snakeGame)
+                        then newScore
+                        else highScore snakeGame
 
 -- Entry point of program
 main :: IO ()
-main = play window background clockTick (initialState True) render handleKeys update
+main = play window background clockTick (initialState True 0) render handleKeys update

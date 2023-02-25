@@ -25,18 +25,20 @@ data SnakeGame = Game {
     gameOver :: Bool,
     direction :: CurDir,
     randSeed :: StdGen,
-    score :: Int
+    score :: Int,
+    highScore :: Int
 } deriving Show
 
 -- Initial state of the program upon starting
-initialState :: Bool -> SnakeGame
-initialState gameOverState = Game {
+initialState :: Bool -> Int -> SnakeGame
+initialState gameOverState newHighScore = Game {
     getSnake = [(startX, startY), (startX, startY-1), (startX, startY-2)],
     getFood = (10,3),
     gameOver = gameOverState,
     direction = DOWN,
     randSeed = mkStdGen 100,
-    score = 0
+    score = 0,
+    highScore = newHighScore
 } where
     startX = 15
     startY = 15
@@ -44,10 +46,10 @@ initialState gameOverState = Game {
 -- Update the state of the snake
 -- Increment the head and delete the tail depending on if it eats food
 move :: SnakeGame -> Snake
-move (Game snake food gameOver curDir randSeed score) = 
+move (Game snake food gameOver curDir randSeed score highScore) = 
     if isFoodEaten then newHead : snake else newHead : init snake
     where
-    (isFoodEaten, _) = (foodIsEaten (Game snake food gameOver curDir randSeed score))
+    (isFoodEaten, _) = (foodIsEaten (Game snake food gameOver curDir randSeed score highScore))
     newHead = 
         -- (0, -1) is up
         if curDir == UP then (xHead, yHead - 1)
@@ -63,18 +65,18 @@ move (Game snake food gameOver curDir randSeed score) =
 
 -- Change the state of direction using the provided new direction 
 changeDirection :: SnakeGame -> CurDir -> SnakeGame
-changeDirection (Game s f g direction r sc) newDir = (Game s f g newDir r sc)
+changeDirection (Game s f g direction r sc highScore) newDir = (Game s f g newDir r sc highScore)
 
 -- Checks if snake eats food based on coordinates of the head and food
 -- Returns the Bool and score
 foodIsEaten :: SnakeGame -> (Bool, Int)
-foodIsEaten (Game snake food gameOver curDir randSeed score) = if (head snake) == food
+foodIsEaten (Game snake food gameOver curDir randSeed score highScore) = if (head snake) == food
     then (True, score + 1)
     else (False, score)
 
 -- Checks if game is over based on if the head crosses the boundaries or intersects with body
 checkGameOver :: SnakeGame -> Bool
-checkGameOver (Game snake food gameOver curDir randSeed score) =
+checkGameOver (Game snake food gameOver curDir randSeed score highScore) =
     ((head snake) `elem` (tail snake)) ||
     (headX <= 0|| headX >= gameBorderWidth) ||
     (headY <= 0 || headY >= gameBorderHeight)
@@ -84,8 +86,8 @@ checkGameOver (Game snake food gameOver curDir randSeed score) =
 -- Generates new food and checks that food spawns in valid position
 -- Returns the new food and a new random seed
 generateFood :: SnakeGame -> (Food, StdGen)
-generateFood (Game snake food gameOver direction randSeed score) = if (foodX, foodY) `elem` snake
-    then generateFood (Game snake food gameOver direction stdGen3 score)
+generateFood (Game snake food gameOver direction randSeed score highScore) = if (foodX, foodY) `elem` snake
+    then generateFood (Game snake food gameOver direction stdGen3 score highScore)
     else ((foodX, foodY), stdGen3)
     where
         (foodX, stdGen2) = ((randomR (1, gameBorderWidth-1) randSeed))
