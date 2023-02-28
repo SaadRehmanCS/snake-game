@@ -5,8 +5,8 @@ import System.Random
 -- Inititalize global variables
 data CurDir = UP | DOWN | LEFT | RIGHT deriving (Show, Eq)
 
-gameBorderHeight = 24
-gameBorderWidth = 32
+gameBorderHeight = 30
+gameBorderWidth = 40
 
 blockSize :: Float
 blockSize = 20

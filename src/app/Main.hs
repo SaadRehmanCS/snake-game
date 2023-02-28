@@ -22,7 +22,11 @@ background = black
 render :: SnakeGame -> Picture
 render game = pictures $
                         -- Create 4 borders here
-                        [fillRectangle blue (gameBorderWidthHalf, 0) (borderWidth, blockSize)
+                        [color red $ 
+                        translate (-350) (200) $ 
+                        scale 0.3 0.3 $ 
+                        text ("Score: "  ++ show (score game)),
+                        fillRectangle blue (gameBorderWidthHalf, 0) (borderWidth, blockSize)
                         ,fillRectangle blue (gameBorderWidthHalf, fromIntegral gameBorderHeight) (borderWidth, blockSize)
                         ,fillRectangle blue (0, gameBorderHeightHalf) (blockSize, borderHeight)
                         ,fillRectangle blue (fromIntegral gameBorderWidth, gameBorderHeightHalf) (blockSize, borderHeight) ] ++
@@ -47,11 +51,7 @@ render game = pictures $
                                                         rectangleSolid w h
                         toFloat (x, y) = (fromIntegral x, fromIntegral y)
                         gameOverPicture =   if (gameOver game) 
-                                        then [  color red $ 
-                                                translate (-300) (150) $ 
-                                                scale 0.3 0.3 $ 
-                                                text ("High Score: "  ++ show (highScore game))
-                                        ,color blue $ 
+                                        then [  color blue $ 
                                                 translate (-200) (0) $ 
                                                 scale 0.5 0.5 $ 
                                                 text "GAME OVER"
@@ -62,7 +62,7 @@ render game = pictures $
                                         ,color red $ 
                                                 translate (-90) (-100) $ 
                                                 scale 0.3 0.3 $ 
-                                                text ("Score: "  ++ show (score game))]
+                                                text ("High Score: "  ++ show (highScore game))]
                                         else []
 
 -- Map each keyboard key to a function
